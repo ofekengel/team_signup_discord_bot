@@ -1,5 +1,5 @@
-from command_hablers.ctx import Ctx
-from command_hablers.handler import Handler
+from command_handlers.ctx import Ctx
+from command_handlers.handler import Handler
 
 
 class UpdatePlayerCommandHandler(Handler):

@@ -1,4 +1,4 @@
-from command_hablers.ctx import Ctx
+from command_handlers.ctx import Ctx
 from commands.icommand import ICommand
 
 

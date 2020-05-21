@@ -1,8 +1,8 @@
 import discord
 from discord import Guild
 
-from command_hablers.ctx import Ctx
-from command_hablers.handler import Handler, CommandHandleException
+from command_handlers.ctx import Ctx
+from command_handlers.handler import Handler, CommandHandleException
 from commands.store_team import StoreTeam
 from db_api.team_members_db_api import TeamMembersDBAPI
 from db_api.teams_db_api import TeamsDBAPI

@@ -1,10 +1,10 @@
 import discord
 from discord import Message
 
-from command_hablers.command_handler_router import CommandHandlerRouter
-from command_hablers.ctx import Ctx
-from command_hablers.handler import CommandHandleException
-from command_hablers.store_team_command_handler import PlayerAlreadyExistInAnotherRoleException
+from command_handlers.command_handler_router import CommandHandlerRouter
+from command_handlers.ctx import Ctx
+from command_handlers.handler import CommandHandleException
+from command_handlers.store_team_command_handler import PlayerAlreadyExistInAnotherRoleException
 from commands import icommand
 from commands.icommand import ICommand
 from parsers.parser_router import ParserRouter
