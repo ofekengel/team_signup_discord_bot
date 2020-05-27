@@ -1,7 +1,6 @@
 import re
 from typing import List
-
-from parsers.bot_command_parser import BotCommandParser
+from parsers.bot_command_parser import BotCommandParser, CommandParserException
 from team_members.captain import Captain
 from commands.store_team import StoreTeam
 from team_members.team_member import TeamMember
@@ -21,6 +20,7 @@ class CouldNotFindCaptainNameException(Exception):
 
 # todo: name regex vars
 class SignCommandParser(BotCommandParser):
+    # todo: get Message and use author_response.raw_mentions[0] to get ids and not regex
     @classmethod
     def parse(cls, raw_message: str) -> StoreTeam:
         try:
@@ -36,24 +36,26 @@ class SignCommandParser(BotCommandParser):
             team = StoreTeam(team_name, captain, players)
 
             return team
-        except CouldNotFindTeamNameException as e:
-            raise e
-        except CouldNotFindCaptainNameException as e:
-            raise e
+        except CouldNotFindTeamNameException:
+            raise CommandParserException('Please enter team name right')
+        except CouldNotFindCaptainNameException:
+            raise CommandParserException('Please enter captain name right')
 
-    @staticmethod
-    def __find_captain(message: str) -> str:
+    @classmethod
+    def __find_captain(cls, message: str) -> str:
         captain_info_section = re.search(r'<@[!&][^><]+> as captain', message)
         if captain_info_section is not None:
-            return re.search(r'<@[!&][^><]+>', captain_info_section.group()).group()
+            return cls.__get_id(re.search(r'<@[!&][^><]+>', captain_info_section.group()).group())
         raise CouldNotFindCaptainNameException()
 
-    @staticmethod
-    def __find_team_members_names(message: str) -> List[str]:
+    @classmethod
+    def __find_team_members_names(cls, message: str) -> List[str]:
+        members = []
         members_info_section = re.search('members: (<@!.*>, ){0,7}(<@!.*>)', message)
         if members_info_section is not None:
-            return re.findall('<@[!&][^><]+>', members_info_section.group())
-        return []
+            for member in re.findall('<@[!&][^><]+>', members_info_section.group()):
+                members.append(cls.__get_id(member))
+        return members
 
     @staticmethod
     def __find_team_name(message: str) -> str:
@@ -64,3 +66,7 @@ class SignCommandParser(BotCommandParser):
             if team_name is not None:
                 return team_name.group()
         raise CouldNotFindTeamNameException()
+
+    @staticmethod
+    def __get_id(message: str) -> str:
+        return re.search(r'\d+', message).group()

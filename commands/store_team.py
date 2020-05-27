@@ -18,11 +18,11 @@ class StoreTeam(ICommand):
         return players
 
     def get_representation(self) -> str:
-        representation = 'Team is {}. Captain is {}'.format(self.team_name, self.captain.name)
+        representation = 'Team is {}. Captain is <@{}>'.format(self.team_name, self.captain.name)
         if len(self.members) > 0:
             representation += ' members are'
             for member in self.members:
-                representation += ' {}'.format(member.name, member.role)
+                representation += ' <@{}>'.format(member.name, member.role)
         else:
             representation += ' there are no members as of yet'
         return representation
