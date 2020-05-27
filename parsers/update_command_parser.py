@@ -12,9 +12,9 @@ class RoleDoesNotExistException(Exception):
 
 class UpdateCommandParser(BotCommandParser):
     @classmethod
-    def parse(cls, message: str) -> UpdatePlayer:
-        player_name = cls.__get_id(cls.__get_player_name(message))
-        role = cls.__get_player_role(message)
+    def parse(cls, raw_message: str) -> UpdatePlayer:
+        player_name = cls.__get_id(cls.__get_player_name(raw_message))
+        role = cls.__get_player_role(raw_message)
         if role not in RoleEnum._value2member_map_:
             raise RoleDoesNotExistException()
         return UpdatePlayer(Player(player_name, ''), RoleEnum._value2member_map_[role])

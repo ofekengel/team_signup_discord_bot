@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from db_api.db_communicator import DBCommunicator
 from team_members.player import Player
 
@@ -33,7 +31,10 @@ class TeamMembersDBAPI:
             return True
         return False
 
-    def update_player(self, player: Player):
+    def update_player(self, player: Player) -> None:
         self.__api.execute_query(
             "update '{}' set role = '{}', team = '{}' where name = '{}'".format(self.__table_name, player.role,
                                                                                 player.team_name, player.name))
+
+    def delete_player(self, player_name: str) -> None:
+        self.__api.execute_query("DELETE FROM {} WHERE name = '{}'".format(self.__table_name, player_name))

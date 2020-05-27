@@ -2,4 +2,5 @@ from abc import ABC
 
 
 class ICommand(ABC):
-    pass
+    def get_representation(self):
+        raise NotImplementedError()

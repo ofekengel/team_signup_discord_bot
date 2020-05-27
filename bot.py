@@ -50,6 +50,7 @@ class Bot(discord.Client):
         command = raw_message.split(' ')[0]
         message_with_no_command = self.__trim_command(raw_message)
         try:
+            # todo: update all parsers to work with Message
             return self.__command_parser_router[command].parse(message_with_no_command)
         except KeyError:
             raise UnknownCommandException()

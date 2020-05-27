@@ -1,5 +1,3 @@
-from discord import Message
-
 from commands.icommand import ICommand
 
 
@@ -9,5 +7,5 @@ class CommandParserException(Exception):
 
 class BotCommandParser:
     @classmethod
-    def parse(cls, message: Message) -> ICommand:
+    def parse(cls, raw_message: str) -> ICommand:
         raise NotImplementedError
