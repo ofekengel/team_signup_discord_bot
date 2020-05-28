@@ -6,7 +6,7 @@ class PlayerAlreadyExistException(Exception):
     pass
 
 
-# todo: strings
+# todo: strings; decorate escaping
 class TeamMembersDBAPI:
     def __init__(self):
         self.__api = DBCommunicator('storage.db')
@@ -16,17 +16,17 @@ class TeamMembersDBAPI:
         if self.is_player_in_db(player.name):
             raise PlayerAlreadyExistException()
         self.__api.execute_query(
-            "insert into {} values ('{}', '{}', '{}')".format(self.__table_name, player.name, player.role,
-                                                              player.team_name))
+            "insert into {} values ('{}', '{}', '{}')".format(self.__table_name, str(player.name).replace("'", "''"), player.role,
+                                                              player.team_name.replace("'", "''")))
 
     def get_player(self, player_name: str) -> Player:
         # todo: add named tuple
-        self.__api.execute_query("select * from {} where name = '{}'".format(self.__table_name, player_name))
+        self.__api.execute_query("select * from {} where name = '{}'".format(self.__table_name, str(player_name).replace("'", "''")))
         result = self.__api.get_result()[0]
         return Player(result[0], result[2], result[1])
 
     def is_player_in_db(self, player_name: str) -> bool:
-        self.__api.execute_query(r"select * from {} where name = '{}'".format(self.__table_name, player_name))
+        self.__api.execute_query(r"select * from {} where name = '{}'".format(self.__table_name, str(player_name).replace("'", "''")))
         if len(self.__api.get_result()) > 0:
             return True
         return False
@@ -34,7 +34,7 @@ class TeamMembersDBAPI:
     def update_player(self, player: Player) -> None:
         self.__api.execute_query(
             "update '{}' set role = '{}', team = '{}' where name = '{}'".format(self.__table_name, player.role,
-                                                                                player.team_name, player.name))
+                                                                                player.team_name.replace("'", "''"), str(player.name).replace("'", "''")))
 
     def delete_player(self, player_name: str) -> None:
-        self.__api.execute_query("DELETE FROM {} WHERE name = '{}'".format(self.__table_name, player_name))
+        self.__api.execute_query("DELETE FROM {} WHERE name = '{}'".format(self.__table_name, str(player_name).replace("'", "''")))

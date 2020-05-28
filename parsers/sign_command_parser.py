@@ -62,9 +62,9 @@ class SignCommandParser(BotCommandParser):
         # i have removed escaped space from regex
         team_name_section = re.search(r'for team .*', message)
         if team_name_section is not None:
-            team_name = re.search('[^ ]+$', team_name_section.group())
+            team_name = team_name_section.group().replace('for team ', '')
             if team_name is not None:
-                return team_name.group()
+                return team_name
         raise CouldNotFindTeamNameException()
 
     @staticmethod

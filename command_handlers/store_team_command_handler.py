@@ -19,12 +19,12 @@ class StoreTeamCommandHandler(Handler):
 
     async def handle(self) -> str:
         try:
-            self.__storage_framework.store_new_team(self.command.team_name)
+            self.__storage_framework.store_new_team(self.command.team_name, self.ctx.message.attachments[0].url)
             players = self.command.get_players()
             for player in players:
                 self.__storage_framework.store_new_player(player)
                 await self.__add_role_to_player(player)
-            return self.command.get_representation()
+            return '{}\n{}'.format(self.ctx.message.attachments[0].url, self.command.get_representation())
         except PlayerAlreadyExistException as e:
             raise CommandHandlerException('{} already exists'.format(e.args[0]))
         except TeamAlreadyExistException as e:

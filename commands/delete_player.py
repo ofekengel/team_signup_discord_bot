@@ -8,4 +8,4 @@ class DeletePlayer(ICommand):
         self.player_to_delete = player
 
     def get_representation(self):
-        return 'deleted player <@{}>'.format(self.player_to_delete)
+        return 'deleted player <@{}>'.format(self.player_to_delete.name)

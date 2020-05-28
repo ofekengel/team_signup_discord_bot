@@ -34,9 +34,9 @@ class StorageFramework:
             existing_player = self.__player_storage_api.get_player(player.name)
             raise PlayerAlreadyExistInAnotherRoleException(existing_player)
 
-    def store_new_team(self, team_name: str) -> None:
+    def store_new_team(self, team_name: str, team_logo: str) -> None:
         try:
-            self.__team_storage_api.insert_team(team_name)
+            self.__team_storage_api.insert_team(team_name, team_logo)
         except IntegrityError as e:
             if 'UNIQUE' in e.args[0]:
                 raise TeamAlreadyExistException(team_name)
@@ -67,4 +67,8 @@ class StorageFramework:
     def delete_player(self, player_name: str) -> None:
         if self.__player_storage_api.is_player_in_db(player_name):
             self.__player_storage_api.delete_player(player_name)
+            return
         raise PlayerNotInDBException()
+
+    def is_player_signed(self, player_name: str) -> bool:
+        return self.__player_storage_api.is_player_in_db(player_name)

@@ -30,7 +30,7 @@ class Bot(discord.Client):
         await self.get_channel(self.BOT_CHANNEL_ID).send('online!')
 
     async def on_message(self, message: discord.Message):
-        if not message.author.bot:
+        if not message.author.bot and not message.type == discord.MessageType.pins_add:
             if not type(message.channel) == discord.DMChannel:
                 if message.channel.name == 'bot' and not message.author.bot and message.author not in self.awaiting_response:
                     try:
@@ -47,7 +47,7 @@ class Bot(discord.Client):
                 await message.channel.send('dm not supported yet')
 
     def __parse_message(self, raw_message: str) -> ICommand:
-        command = raw_message.split(' ')[0]
+        command = raw_message.split('\n')[0]
         message_with_no_command = self.__trim_command(raw_message)
         try:
             # todo: update all parsers to work with Message
