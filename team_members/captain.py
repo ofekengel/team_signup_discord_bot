@@ -2,8 +2,6 @@ from team_members.player import Player
 
 
 class Captain(Player):
-    # def __init__(self, name: str, team_name: str, image_url):
-    def __init__(self, name: str, team_name: str):
-        # super().__init__(name, team_name, image_url)
-        super().__init__(name, team_name)
+    def __init__(self, name: str, team_name: str, profile_link: str):
+        super().__init__(name, team_name, profile_link)
         self.role = 'captain'

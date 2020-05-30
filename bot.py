@@ -36,7 +36,10 @@ class Bot(discord.Client):
                     try:
                         parsed_message = self.__parse_message(message.content)
                         result = await self.__handle_message(parsed_message, message)
-                        await message.channel.send(result)
+                        if type(result) == str:
+                            await message.channel.send(result)
+                        else:
+                            await message.channel.send(embed=result)
                     except UnknownCommandException:
                         await message.channel.send('Please use a command. commands are - to be added')
                     except CommandHandlerException as e:
@@ -67,5 +70,5 @@ class Bot(discord.Client):
 
 
 if __name__ == '__main__':
-    Token = 'NzExNjE4MjgyOTA5NzI4ODMw.XsFofw.YgDcC35D8uvKQZINIdeEyZ70IwM'
+    Token = 'NzE2MzIxNDkyNjM5Njc4NDY0.XtKEcQ.dhbnJ6RCOoV85QUyTUSdBIuvxXU'
     Bot().run(Token)

@@ -3,6 +3,7 @@ from typing import List
 from parsers.bot_command_parser import BotCommandParser, CommandParserException
 from team_members.captain import Captain
 from commands.store_team import StoreTeam
+from team_members.role_enum import RoleEnum
 from team_members.team_member import TeamMember
 
 
@@ -24,16 +25,23 @@ class SignCommandParser(BotCommandParser):
     @classmethod
     def parse(cls, raw_message: str) -> StoreTeam:
         try:
-            captain_name = cls.__find_captain(raw_message)
-            team_members = cls.__find_team_members_names(raw_message)
-            team_name = cls.__find_team_name(raw_message)
-
-            captain = Captain(captain_name, team_name)
+            command_lines = raw_message.split('\n')
+            team_name = command_lines[0]
+            members = command_lines[1:]
             players = []
-            for member in team_members:
-                players.append(TeamMember(member, team_name))
-
-            team = StoreTeam(team_name, captain, players)
+            captain = ''
+            for member in members:
+                name = cls.__get_id(re.search(r'<@[!&][^><]+>', member).group())
+                role = cls.__get_role(member)
+                profile_link = cls.__get_profile_link(member)
+                if role == RoleEnum.CAPTAIN.value:
+                    captain = Captain(name, team_name, profile_link)
+                else:
+                    players.append(TeamMember(name, team_name, profile_link))
+            if captain != '':
+                team = StoreTeam(team_name, captain, players)
+            else:
+                raise CommandParserException('Please enter a team captain')
 
             return team
         except CouldNotFindTeamNameException:
@@ -41,31 +49,14 @@ class SignCommandParser(BotCommandParser):
         except CouldNotFindCaptainNameException:
             raise CommandParserException('Please enter captain name right')
 
-    @classmethod
-    def __find_captain(cls, message: str) -> str:
-        captain_info_section = re.search(r'<@[!&][^><]+> as captain', message)
-        if captain_info_section is not None:
-            return cls.__get_id(re.search(r'<@[!&][^><]+>', captain_info_section.group()).group())
-        raise CouldNotFindCaptainNameException()
-
-    @classmethod
-    def __find_team_members_names(cls, message: str) -> List[str]:
-        members = []
-        members_info_section = re.search('members: (<@!.*>, ){0,7}(<@!.*>)', message)
-        if members_info_section is not None:
-            for member in re.findall('<@[!&][^><]+>', members_info_section.group()):
-                members.append(cls.__get_id(member))
-        return members
+    @staticmethod
+    def __get_role(message: str) -> str:
+        return re.search('role: \w+', message).group().split(' ')[1]
 
     @staticmethod
-    def __find_team_name(message: str) -> str:
-        # i have removed escaped space from regex
-        team_name_section = re.search(r'for team .*', message)
-        if team_name_section is not None:
-            team_name = team_name_section.group().replace('for team ', '')
-            if team_name is not None:
-                return team_name
-        raise CouldNotFindTeamNameException()
+    def __get_profile_link(message: str) -> str:
+        return re.search('[^ ]+$', message).group()
+
 
     @staticmethod
     def __get_id(message: str) -> str:
