@@ -23,7 +23,7 @@ class TeamMembersDBAPI:
         # todo: add named tuple
         self.__api.execute_query("select * from {} where name = '{}'".format(self.__table_name, str(player_name).replace("'", "''")))
         result = self.__api.get_result()[0]
-        return Player(result[0], result[2], result[1])
+        return Player(name=result[0], role=result[1], team_name=result[2])
 
     def is_player_in_db(self, player_name: str) -> bool:
         self.__api.execute_query(r"select * from {} where name = '{}'".format(self.__table_name, str(player_name).replace("'", "''")))

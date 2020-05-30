@@ -17,7 +17,7 @@ class UnknownCommandException(Exception):
 
 class Bot(discord.Client):
     LOGIN_MESSAGE = '{} online!'
-    BOT_CHANNEL_ID = 711623834507411466
+    # BOT_CHANNEL_ID = 711623834507411466
 
     def __init__(self, **options):
         super().__init__(**options)
@@ -27,7 +27,7 @@ class Bot(discord.Client):
 
     async def on_ready(self):
         print(self.LOGIN_MESSAGE.format(self.user.display_name))
-        await self.get_channel(self.BOT_CHANNEL_ID).send('online!')
+        # await self.get_channel(self.BOT_CHANNEL_ID).send('online!')
 
     async def on_message(self, message: discord.Message):
         if not message.author.bot and not message.type == discord.MessageType.pins_add:
@@ -50,11 +50,15 @@ class Bot(discord.Client):
                 await message.channel.send('dm not supported yet')
 
     def __parse_message(self, raw_message: str) -> ICommand:
-        command = raw_message.split('\n')[0]
+        lines = raw_message.split('\n')
+        if len(lines) == 1:
+            command = raw_message.split(' ')[0]
+        else:
+            command = raw_message.split('\n')[0]
         message_with_no_command = self.__trim_command(raw_message)
         try:
             # todo: update all parsers to work with Message
-            return self.__command_parser_router[command].parse(message_with_no_command)
+            return self.__command_parser_router[command].parse(message_with_no_command.lower())
         except KeyError:
             raise UnknownCommandException()
 

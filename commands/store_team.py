@@ -1,5 +1,8 @@
 from typing import List
 
+import discord
+from discord import Embed
+
 from commands.icommand import ICommand
 from team_members.captain import Captain
 from team_members.team_member import TeamMember
@@ -17,12 +20,12 @@ class StoreTeam(ICommand):
         players.append(self.captain)
         return players
 
-    def get_representation(self) -> str:
-        representation = 'Team is {}. Captain is <@{}>'.format(self.team_name, self.captain.name)
-        if len(self.members) > 0:
-            representation += ' members are'
-            for member in self.members:
-                representation += ' <@{}>'.format(member.name, member.role)
-        else:
-            representation += ' there are no members as of yet'
-        return representation
+    def get_representation(self) -> Embed:
+        embed = discord.Embed(title='Team name', description=self.team_name, color=discord.Color.from_rgb(255, 0, 42))
+        embed.add_field(name='Captain', value='<@{}>'.format(self.captain.name), inline=False)
+        members = ''
+        for member in self.members:
+            members += '<@{}>, '.format(member.name)
+        members = members[:-2]
+        embed.add_field(name='Members', value=members, inline=False)
+        return embed
