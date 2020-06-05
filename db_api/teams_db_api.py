@@ -4,8 +4,8 @@ from db_api.db_communicator import DBCommunicator
 
 
 class TeamsDBAPI:
-    def __init__(self):
-        self.__api = DBCommunicator('storage.db')
+    def __init__(self, path: str):
+        self.__api = DBCommunicator(path + 'storage.db')
         self.__table_name = 'teams'
 
     def insert_team(self, team_name: str, team_logo: str, league: str, team_tag: str) -> None:

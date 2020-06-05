@@ -28,7 +28,8 @@ class Bot(discord.Client):
     LOGIN_MESSAGE = '{} online!'
     ADMIN_ID = 332188130449031169
     CHANNEL_NAME = '∣💌∣sign-ups'
-    MESSAGE_TO_DELETE_FILE = __file__[:__file__.rfind('/')+1] + 'message_to_delete.txt'
+    PATH = __file__[:__file__.rfind('/')+1]
+    MESSAGE_TO_DELETE_FILE = PATH + 'message_to_delete.txt'
 
     def __init__(self, **options):
         super().__init__(**options)
@@ -82,7 +83,7 @@ class Bot(discord.Client):
             raise UnknownCommandException()
 
     async def __handle_message(self, command: ICommand, message: Message) -> str:
-        ctx = Ctx(message.guild, message, self)
+        ctx = Ctx(message.guild, message, self, self.PATH)
         return await self.__command_handler_router[type(command)](command, ctx).handle()
 
     @staticmethod

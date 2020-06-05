@@ -24,9 +24,9 @@ class PlayerNotInDBException(Exception):
 
 
 class StorageFramework:
-    def __init__(self):
-        self.__player_storage_api = TeamMembersDBAPI()
-        self.__team_storage_api = TeamsDBAPI()
+    def __init__(self, path: str):
+        self.__player_storage_api = TeamMembersDBAPI(path)
+        self.__team_storage_api = TeamsDBAPI(path)
 
     def store_new_player(self, player: Player) -> None:
         try:

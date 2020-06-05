@@ -3,11 +3,8 @@ import asyncio
 import discord
 from discord import Guild, Embed
 
-from command_handlers.ctx import Ctx
 from command_handlers.handler import Handler, CommandHandlerException
-from commands.store_team import StoreTeam
-from db_api.storage_framework import TeamAlreadyExistException, PlayerAlreadyExistInAnotherRoleException, \
-    StorageFramework
+from db_api.storage_framework import TeamAlreadyExistException, PlayerAlreadyExistInAnotherRoleException
 from db_api.team_members_db_api import PlayerAlreadyExistException
 from model.leagues import LEAGUES
 from model.player import Player
@@ -18,17 +15,14 @@ class PictureNotFoundException(Exception):
 
 
 class StoreTeamCommandHandler(Handler):
-    def __init__(self, command: StoreTeam, ctx: Ctx):
-        super().__init__(command, ctx)
-        self.__storage_framework = StorageFramework()
 
     async def handle(self) -> Embed:
         try:
             logo = self.__get_team_picture()
-            self.__storage_framework.store_new_team(self.command.team, logo, self.command.team.team_tag)
+            self.storage_framework.store_new_team(self.command.team, logo, self.command.team.team_tag)
             players = self.command.get_players()
             for player in players:
-                self.__storage_framework.store_new_player(player)
+                self.storage_framework.store_new_player(player)
                 await self.__add_role_to_player(player)
             return self.__create_result(logo)
         except PlayerAlreadyExistException as e:

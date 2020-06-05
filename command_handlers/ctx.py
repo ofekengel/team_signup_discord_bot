@@ -7,3 +7,4 @@ class Ctx(NamedTuple):
     server: Guild
     message: Message
     bot: Client
+    path: str

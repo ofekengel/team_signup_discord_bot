@@ -2,10 +2,8 @@ import asyncio
 
 from discord import Message, Member
 
-from command_handlers.ctx import Ctx
 from command_handlers.handler import Handler, CommandHandlerException
-from commands.update_player import UpdatePlayer
-from db_api.storage_framework import StorageFramework, PlayerNotRecognizedException
+from db_api.storage_framework import PlayerNotRecognizedException
 from model.role_enum import RoleEnum
 
 
@@ -22,9 +20,6 @@ class CouldNotAssignANewCaptain(Exception):
 
 
 class UpdatePlayerCommandHandler(Handler):
-    def __init__(self, command: UpdatePlayer, ctx: Ctx):
-        super().__init__(command, ctx)
-        self.__storage_framework = StorageFramework()
 
     async def handle(self) -> str:
         try:
@@ -32,12 +27,12 @@ class UpdatePlayerCommandHandler(Handler):
             player_to_update_name = self.command.player.name
             new_captain_representation = ''
 
-            if self.__storage_framework.is_player_in_role(command_author_name, RoleEnum.CAPTAIN):
-                if self.__storage_framework.are_players_in_the_same_team(command_author_name, player_to_update_name):
-                    if self.__storage_framework.is_player_in_role(player_to_update_name, RoleEnum.CAPTAIN):
+            if self.storage_framework.is_player_in_role(command_author_name, RoleEnum.CAPTAIN):
+                if self.storage_framework.are_players_in_the_same_team(command_author_name, player_to_update_name):
+                    if self.storage_framework.is_player_in_role(player_to_update_name, RoleEnum.CAPTAIN):
                         new_captain = await self.__assign_new_captain(self.ctx.message.author)
                         new_captain_representation = ' and <@{}> to be the new captain'.format(new_captain)
-                    self.__storage_framework.update_role_for_player(player_to_update_name, self.command.role)
+                    self.storage_framework.update_role_for_player(player_to_update_name, self.command.role)
                     return self.command.get_representation() + new_captain_representation
                 else:
                     raise CommandHandlerException('Cannot update players in different teams')
@@ -68,7 +63,7 @@ class UpdatePlayerCommandHandler(Handler):
         try:
             await self.ctx.message.channel.send('{} Please enter a new captain'.format(message_author.mention))
             new_captain_name = await self.__get_player_response(message_author)
-            self.__storage_framework.update_role_for_player(new_captain_name, RoleEnum.CAPTAIN)
+            self.storage_framework.update_role_for_player(new_captain_name, RoleEnum.CAPTAIN)
             return new_captain_name
         except DidNotEnterNewCaptainInTime:
             raise CouldNotAssignANewCaptain()

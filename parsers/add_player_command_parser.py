@@ -16,7 +16,10 @@ class AddPlayerCommandParser(BotCommandParser):
 
     @staticmethod
     def __get_id(message: str) -> str:
-        return re.search(r'\d+', message).group()
+        try:
+            return re.search(r'\d+', message).group()
+        except AttributeError:
+            raise CommandParserException('Must mention a player')
 
     @staticmethod
     def __get_account(message: str) -> str:

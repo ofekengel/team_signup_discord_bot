@@ -8,8 +8,8 @@ class PlayerAlreadyExistException(Exception):
 
 # todo: strings; decorate escaping
 class TeamMembersDBAPI:
-    def __init__(self):
-        self.__api = DBCommunicator('storage.db')
+    def __init__(self, path: str):
+        self.__api = DBCommunicator(path + 'storage.db')
         self.__table_name = 'team_members'
 
     def insert_player(self, player: Player) -> None:
