@@ -80,7 +80,7 @@ class SignCommandParser(BotCommandParser):
     @classmethod
     def __get_league_name(cls, message: str) -> str:
         role = re.search(r': [^,]+', message).group()[2:]
-        if role not in LEAGUES.keys():
+        if role.strip() not in LEAGUES.keys():
             raise LeagueNameParseException()
         return role
 
