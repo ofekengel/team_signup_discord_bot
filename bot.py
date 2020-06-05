@@ -28,6 +28,7 @@ class Bot(discord.Client):
     LOGIN_MESSAGE = '{} online!'
     ADMIN_ID = 332188130449031169
     CHANNEL_NAME = '∣💌∣sign-ups'
+    MESSAGE_TO_DELETE_FILE = __file__[:__file__.rfind('/')+1] + 'message_to_delete.txt'
 
     def __init__(self, **options):
         super().__init__(**options)
@@ -90,7 +91,7 @@ class Bot(discord.Client):
         return raw_message[command_end_index_in_message:]
 
     async def __delete_last_bot_status_message(self) -> None:
-        with open('message_to_delete.txt', 'r') as f:
+        with open(self.MESSAGE_TO_DELETE_FILE, 'r') as f:
             message_to_delete_id = f.read()
         try:
             await self.http.delete_message(self.BOT_CHANNEL_ID, message_to_delete_id)
@@ -100,7 +101,7 @@ class Bot(discord.Client):
     async def __send_bot_status_message(self, message: str) -> None:
         shutdown_message = await self.get_channel(self.BOT_CHANNEL_ID).send(
             message)
-        with open('message_to_delete.txt', 'w') as f:
+        with open(self.MESSAGE_TO_DELETE_FILE, 'w') as f:
             f.write(str(shutdown_message.id))
 
     async def __shutdown(self):
