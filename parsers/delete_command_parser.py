@@ -2,7 +2,7 @@ import re
 
 from commands.delete_player import DeletePlayer
 from parsers.bot_command_parser import BotCommandParser
-from team_members.player import Player
+from model.player import Player
 
 
 class DeleteCommandParser(BotCommandParser):

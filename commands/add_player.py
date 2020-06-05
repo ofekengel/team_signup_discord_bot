@@ -1,7 +1,7 @@
 import discord
 
 from commands.icommand import ICommand
-from team_members.player import Player
+from model.player import Player
 
 
 class AddPlayer(ICommand):
@@ -9,5 +9,5 @@ class AddPlayer(ICommand):
         self.player = player_to_add
 
     def get_representation(self) -> discord.Embed:
-        embed = discord.Embed(title='player', description='<@{}>'.format(self.player.name), color=discord.Color.from_rgb(255, 0, 42))
+        embed = discord.Embed(title='player added', description='<@{}>'.format(self.player.name), color=discord.Color.from_rgb(255, 0, 42))
         return embed

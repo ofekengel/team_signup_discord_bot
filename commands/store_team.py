@@ -4,14 +4,15 @@ import discord
 from discord import Embed
 
 from commands.icommand import ICommand
-from team_members.captain import Captain
-from team_members.team_member import TeamMember
-from team_members.player import Player
+from model.captain import Captain
+from model.team import Team
+from model.team_member import TeamMember
+from model.player import Player
 
 
 class StoreTeam(ICommand):
-    def __init__(self, team_name: str, captain: Captain, members: List[TeamMember]):
-        self.team_name = team_name
+    def __init__(self, team: Team, captain: Captain, members: List[TeamMember]):
+        self.team = team
         self.captain = captain
         self.members = members
 
@@ -21,7 +22,8 @@ class StoreTeam(ICommand):
         return players
 
     def get_representation(self) -> Embed:
-        embed = discord.Embed(title='Team name', description=self.team_name, color=discord.Color.from_rgb(255, 0, 42))
+        embed = discord.Embed(title='Team name', description='{} {}'.format(self.team.team_name, self.team.team_tag), color=discord.Color.from_rgb(255, 0, 42))
+        embed.add_field(name='League', value=self.team.league, inline=False)
         embed.add_field(name='Captain', value='<@{}>'.format(self.captain.name), inline=False)
         members = ''
         for member in self.members:

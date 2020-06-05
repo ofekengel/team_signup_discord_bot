@@ -1,6 +1,6 @@
 from commands.icommand import ICommand
-from team_members.player import Player
-from team_members.role_enum import RoleEnum
+from model.player import Player
+from model.role_enum import RoleEnum
 
 
 class UpdatePlayer(ICommand):

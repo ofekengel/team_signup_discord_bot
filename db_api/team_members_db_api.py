@@ -1,5 +1,5 @@
 from db_api.db_communicator import DBCommunicator
-from team_members.player import Player
+from model.player import Player
 
 
 class PlayerAlreadyExistException(Exception):

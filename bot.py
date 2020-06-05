@@ -26,6 +26,8 @@ The technic team"""
 
 class Bot(discord.Client):
     LOGIN_MESSAGE = '{} online!'
+    ADMIN_ID = 332188130449031169
+    CHANNEL_NAME = '∣💌∣sign-ups'
 
     def __init__(self, **options):
         super().__init__(**options)
@@ -35,7 +37,8 @@ class Bot(discord.Client):
         self.BOT_CHANNEL_ID = 0
 
     async def on_ready(self):
-        self.BOT_CHANNEL_ID = discord.utils.get(discord.utils.get(self.guilds, name='pt').channels, name='bot').id
+        self.BOT_CHANNEL_ID = discord.utils.get(discord.utils.get(self.guilds, name='Talent League R6 EU').channels,
+                                                name=self.CHANNEL_NAME).id
         print(self.LOGIN_MESSAGE.format(self.user.display_name))
         await self.__delete_last_bot_status_message()
         await self.__send_bot_status_message('online!')
@@ -43,7 +46,7 @@ class Bot(discord.Client):
     async def on_message(self, message: discord.Message):
         if not message.author.bot and not message.type == discord.MessageType.pins_add:
             if not type(message.channel) == discord.DMChannel:
-                if message.channel.name == 'bot' and not message.author.bot and message.author not in self.awaiting_response:
+                if message.channel.name == self.CHANNEL_NAME and message.author not in self.awaiting_response:
                     try:
                         parsed_message = self.__parse_message(message.content)
                         result = await self.__handle_message(parsed_message, message)
@@ -52,16 +55,15 @@ class Bot(discord.Client):
                         else:
                             await message.channel.send(embed=result)
                     except UnknownCommandException:
-                        await message.channel.send('Please use a command. commands are - to be added')
+                        pass
+                        # await message.channel.send('Please use a command. commands are - to be added')
                     except CommandHandlerException as e:
                         await message.channel.send(e.args[0])
                     except CommandParserException as e:
                         await message.channel.send(e.args[0])
             else:
-                if message.author.id == 158297103276310528 and message.content == 'shutdown':
-                    await self.__delete_last_bot_status_message()
-                    await self.__send_bot_status_message(OFFLINE_MESSAGE)
-                    await self.logout()
+                if message.author.id == self.ADMIN_ID and message.content == 'shutdown':
+                    await self.__shutdown()
                 else:
                     await message.channel.send('dm not supported yet')
 
@@ -73,14 +75,13 @@ class Bot(discord.Client):
             command = raw_message.split('\n')[0]
         message_with_no_command = self.__trim_command(raw_message)
         try:
-            # todo: update all parsers to work with Message
+            # todo: update all parsers to work with type(Message)
             return self.__command_parser_router[command].parse(message_with_no_command.lower())
         except KeyError:
             raise UnknownCommandException()
 
     async def __handle_message(self, command: ICommand, message: Message) -> str:
-        # todo: handle multiple guilds
-        ctx = Ctx(self.guilds[0], message, self)
+        ctx = Ctx(message.guild, message, self)
         return await self.__command_handler_router[type(command)](command, ctx).handle()
 
     @staticmethod
@@ -91,13 +92,21 @@ class Bot(discord.Client):
     async def __delete_last_bot_status_message(self) -> None:
         with open('message_to_delete.txt', 'r') as f:
             message_to_delete_id = f.read()
-        await self.http.delete_message(self.BOT_CHANNEL_ID, message_to_delete_id)
+        try:
+            await self.http.delete_message(self.BOT_CHANNEL_ID, message_to_delete_id)
+        except discord.errors.NotFound:
+            pass
 
     async def __send_bot_status_message(self, message: str) -> None:
         shutdown_message = await self.get_channel(self.BOT_CHANNEL_ID).send(
             message)
         with open('message_to_delete.txt', 'w') as f:
             f.write(str(shutdown_message.id))
+
+    async def __shutdown(self):
+        await self.__delete_last_bot_status_message()
+        await self.__send_bot_status_message(OFFLINE_MESSAGE)
+        await self.logout()
 
 
 if __name__ == '__main__':

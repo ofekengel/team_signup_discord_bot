@@ -6,7 +6,7 @@ from command_handlers.ctx import Ctx
 from command_handlers.handler import Handler, CommandHandlerException
 from commands.update_player import UpdatePlayer
 from db_api.storage_framework import StorageFramework, PlayerNotRecognizedException
-from team_members.role_enum import RoleEnum
+from model.role_enum import RoleEnum
 
 
 class PlayersAreNotInTheSameTeamException(Exception):
@@ -46,7 +46,7 @@ class UpdatePlayerCommandHandler(Handler):
         except PlayerNotRecognizedException:
             raise CommandHandlerException('Only listed player can use this command')
         except CouldNotAssignANewCaptain:
-            raise CommandHandlerException('You need to list a new captain within 1 minutes of the "update" command')
+            raise CommandHandlerException('You need to list a new captain within 30 seconds of the "update" command')
 
     def validate_wanted_message(self, reply_message: Message) -> bool:
         if reply_message.author == self.ctx.message.author and reply_message.channel == self.ctx.message.channel:
@@ -56,7 +56,7 @@ class UpdatePlayerCommandHandler(Handler):
     async def __get_player_response(self, message_author: Member) -> str:
         self.ctx.bot.awaiting_response.append(message_author)
         try:
-            author_response = await self.ctx.bot.wait_for('message', check=self.validate_wanted_message, timeout=10)
+            author_response = await self.ctx.bot.wait_for('message', check=self.validate_wanted_message, timeout=30)
         except asyncio.TimeoutError:
             self.ctx.bot.awaiting_response.remove(self.ctx.message.author)
             raise DidNotEnterNewCaptainInTime()

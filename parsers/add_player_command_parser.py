@@ -2,7 +2,7 @@ import re
 
 from commands.add_player import AddPlayer
 from parsers.bot_command_parser import BotCommandParser, CommandParserException
-from team_members.team_member import TeamMember
+from model.team_member import TeamMember
 
 
 class AddPlayerCommandParser(BotCommandParser):

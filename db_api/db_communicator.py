@@ -8,8 +8,12 @@ class DBCommunicator:
         self.cur = self.__conn.cursor()
 
     def execute_query(self, query: str):
-        self.cur.execute(query)
-        self.__conn.commit()
+        try:
+            self.cur.execute(query)
+            self.__conn.commit()
+        except Exception as e:
+            self.exit()
+            raise e
 
     def get_result(self) -> List:
         return self.cur.fetchall()

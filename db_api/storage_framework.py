@@ -2,8 +2,9 @@ from sqlite3 import IntegrityError
 
 from db_api.team_members_db_api import TeamMembersDBAPI, PlayerAlreadyExistException
 from db_api.teams_db_api import TeamsDBAPI
-from team_members.player import Player
-from team_members.role_enum import RoleEnum
+from model.player import Player
+from model.role_enum import RoleEnum
+from model.team import Team
 
 
 class PlayerNotRecognizedException(Exception):
@@ -34,12 +35,12 @@ class StorageFramework:
             existing_player = self.__player_storage_api.get_player(player.name)
             raise PlayerAlreadyExistInAnotherRoleException(existing_player)
 
-    def store_new_team(self, team_name: str, team_logo: str) -> None:
+    def store_new_team(self, team: Team, team_logo: str, team_tag: str) -> None:
         try:
-            self.__team_storage_api.insert_team(team_name, team_logo)
+            self.__team_storage_api.insert_team(team.team_name, team_logo, team.league, team_tag)
         except IntegrityError as e:
             if 'UNIQUE' in e.args[0]:
-                raise TeamAlreadyExistException(team_name)
+                raise TeamAlreadyExistException(team.team_name)
 
     def are_players_in_the_same_team(self, player1: str, player2: str) -> bool:
         if not self.__player_storage_api.is_player_in_db(player1):
@@ -72,3 +73,7 @@ class StorageFramework:
 
     def is_player_signed(self, player_name: str) -> bool:
         return self.__player_storage_api.is_player_in_db(player_name)
+
+    def get_team_data_by_player(self, player: Player) -> Team:
+        team_row = self.__team_storage_api.get_team(self.get_player_data(player.name).team_name)
+        return Team(team_row[0], team_row[1], team_row[3])

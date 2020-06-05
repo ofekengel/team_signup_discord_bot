@@ -1,6 +1,6 @@
 from typing import Optional
 
-from team_members.role_enum import RoleEnum
+from model.role_enum import RoleEnum
 
 
 class Player:

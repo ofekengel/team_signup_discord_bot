@@ -1,4 +1,4 @@
-from team_members.player import Player
+from model.player import Player
 
 
 class Captain(Player):

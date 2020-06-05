@@ -9,7 +9,8 @@ from commands.store_team import StoreTeam
 from db_api.storage_framework import TeamAlreadyExistException, PlayerAlreadyExistInAnotherRoleException, \
     StorageFramework
 from db_api.team_members_db_api import PlayerAlreadyExistException
-from team_members.player import Player
+from model.leagues import LEAGUES
+from model.player import Player
 
 
 class PictureNotFoundException(Exception):
@@ -24,7 +25,7 @@ class StoreTeamCommandHandler(Handler):
     async def handle(self) -> Embed:
         try:
             logo = self.__get_team_picture()
-            self.__storage_framework.store_new_team(self.command.team_name, logo)
+            self.__storage_framework.store_new_team(self.command.team, logo, self.command.team.team_tag)
             players = self.command.get_players()
             for player in players:
                 self.__storage_framework.store_new_player(player)
@@ -45,10 +46,14 @@ class StoreTeamCommandHandler(Handler):
         role = await self.__get_role_for_team(player.team_name)
         for player_to_update in players_to_update:
             if str(player_to_update.id) in player.name:
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(0.4)
+                await player_to_update.edit(
+                    nick='{} {}'.format(self.command.team.team_tag.upper(), player_to_update.name))
+                await player_to_update.add_roles(
+                    discord.utils.get(self.ctx.server.roles, name='⁣         ^Team Roles^     ⁣'))
                 await player_to_update.add_roles(role)
-                # todo: reactions for team league type
-                await player_to_update.add_roles(discord.utils.get(self.ctx.server.roles, name='League | Invite Open'))
+                await player_to_update.add_roles(
+                    discord.utils.get(self.ctx.server.roles, name=LEAGUES[self.command.team.league]))
 
     async def __get_role_for_team(self, team_name):
         role = discord.utils.get(self.ctx.server.roles, name='Team | {}'.format(team_name))
@@ -58,7 +63,7 @@ class StoreTeamCommandHandler(Handler):
         return discord.utils.get(self.ctx.server.roles, name=role_name)
 
     async def __create_role_for_team(self, server: Guild) -> str:
-        role_name = 'Team | {}'.format(self.command.team_name)
+        role_name = 'Team | {}'.format(self.command.team.team_name)
         await server.create_role(name=role_name, hoist=True)
         return role_name
 
