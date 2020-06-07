@@ -16,8 +16,8 @@ class TeamMembersDBAPI:
         if self.is_player_in_db(player.name):
             raise PlayerAlreadyExistException()
         self.__api.execute_query(
-            "insert into {} values ('{}', '{}', '{}')".format(self.__table_name, str(player.name).replace("'", "''"), player.role,
-                                                              player.team_name.replace("'", "''")))
+            "insert into {} values ('{}', '{}', '{}', '{}')".format(self.__table_name, str(player.name).replace("'", "''"), player.role,
+                                                              player.team_name.replace("'", "''"), player.profile_link))
 
     def get_player(self, player_name: str) -> Player:
         # todo: add named tuple

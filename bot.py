@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 import discord
@@ -7,6 +8,7 @@ from command_handlers.command_handler_router import CommandHandlerRouter
 from command_handlers.ctx import Ctx
 from command_handlers.handler import CommandHandlerException
 from commands.icommand import ICommand
+from db_api.db_communicator import DBCommunicator
 from parsers.bot_command_parser import CommandParserException
 from parsers.parser_router import ParserRouter
 
@@ -26,9 +28,10 @@ The technic team"""
 
 class Bot(discord.Client):
     LOGIN_MESSAGE = '{} online!'
-    ADMIN_ID = 332188130449031169
+    # ADMIN_ID = 332188130449031169  # tim
+    ADMIN_ID = 158297103276310528  # ofek
     CHANNEL_NAME = '∣💌∣sign-ups'
-    PATH = __file__[:__file__.rfind('/')+1]
+    PATH = __file__[:__file__.rfind('/') + 1]
     MESSAGE_TO_DELETE_FILE = PATH + 'message_to_delete.txt'
 
     def __init__(self, **options):
@@ -59,10 +62,13 @@ class Bot(discord.Client):
                     except UnknownCommandException:
                         pass
                         # await message.channel.send('Please use a command. commands are - to be added')
+                        await message.channel.send('Please make sure the first row is:\n sign')
                     except CommandHandlerException as e:
+                        print(e.args[0])
                         await message.channel.send(e.args[0])
                     except CommandParserException as e:
                         await message.channel.send(e.args[0])
+                        print(e.args[0])
             else:
                 if message.author.id == self.ADMIN_ID and message.content == 'shutdown':
                     await self.__shutdown()
@@ -109,6 +115,30 @@ class Bot(discord.Client):
         await self.__delete_last_bot_status_message()
         await self.__send_bot_status_message(OFFLINE_MESSAGE)
         await self.logout()
+
+    # async def __fix(self):
+    #     a = discord.utils.get(discord.utils.get(self.guilds, name='Talent League R6 EU').channels,
+    #                           name=self.CHANNEL_NAME)
+    #     comm = DBCommunicator(self.PATH + 'storage.db')
+    #
+    #     class MentionParseException(Exception):
+    #         pass
+    #
+    #     def __get_mention(message: str) -> str:
+    #         mention = re.search(r'<@[^><]+>', message)
+    #         if mention is None:
+    #             raise MentionParseException()
+    #
+    #         return mention.group()
+    #
+    #     async for message in a.history(limit=200):
+    #         lines = message.content.split('\n')
+    #         for line in lines:
+    #             if '<@' in line:
+    #                 name = re.search(r'\d+', __get_mention(line)).group()
+    #                 comm.execute_query("UPDATE team_members SET profile_link = '{}' WHERE name = '{}';".format(
+    #                     re.search(r'[^ ]+$', line).group(), name))
+    #     pass
 
 
 if __name__ == '__main__':

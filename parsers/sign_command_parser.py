@@ -27,12 +27,29 @@ class LeagueNameParseException(Exception):
     pass
 
 
+class NoTeamTagException(Exception):
+    pass
+
+
+class MentionParseException(Exception):
+    pass
+
+
+class NoIdException(Exception):
+    pass
+
+
+class NoRoleException(Exception):
+    pass
+
+
 class SignCommandParser(BotCommandParser):
     # todo: get Message and use author_response.raw_mentions[0] to get ids and not regex
     @classmethod
     def parse(cls, raw_message: str) -> StoreTeam:
+        print('parsing sign')
         try:
-            command_lines = raw_message.split('\n')
+            command_lines = cls.__get_rows(raw_message)
             team = command_lines[0]
             league = command_lines[1]
             members = command_lines[2:]
@@ -43,7 +60,7 @@ class SignCommandParser(BotCommandParser):
             team_name = team.replace(team_tag, '')[:-1]
 
             for member in members:
-                name = cls.__get_id(re.search(r'<@[!&][^><]+>', member).group())
+                name = cls.__get_id(cls.__get_mention(member))
                 role = cls.__get_role(member)
                 profile_link = cls.__get_profile_link(member)
                 if role == RoleEnum.CAPTAIN.value:
@@ -64,10 +81,29 @@ class SignCommandParser(BotCommandParser):
             raise CommandParserException('Please enter captain name right')
         except LeagueNameParseException:
             raise CommandParserException('Please enter league name right')
+        except NoTeamTagException:
+            raise CommandParserException('Please enter team tag right')
+        except MentionParseException:
+            raise CommandParserException('Please make sure mentioned players appear in blue, links are in the same row as player and picture is a file and not a link')
+        except NoRoleException:
+            raise CommandParserException('Please make sure you enter roles as shown in the example')
+
+    @staticmethod
+    def __get_mention(message: str) -> str:
+        mention = re.search(r'<@[^><]+>', message)
+        if mention is None:
+            raise MentionParseException()
+
+        return mention.group()
 
     @staticmethod
     def __get_role(message: str) -> str:
-        return re.search(r'role: \w+', message).group().split(' ')[1]
+        try:
+            return re.search(r'role: \w+', message).group().split(' ')[1]
+        except AttributeError:
+            raise NoRoleException()
+
+
 
     @staticmethod
     def __get_profile_link(message: str) -> str:
@@ -75,7 +111,10 @@ class SignCommandParser(BotCommandParser):
 
     @staticmethod
     def __get_id(message: str) -> str:
-        return re.search(r'\d+', message).group()
+        try:
+            return re.search(r'\d+', message).group()
+        except AttributeError:
+            raise NoIdException()
 
     @classmethod
     def __get_league_name(cls, message: str) -> str:
@@ -86,4 +125,16 @@ class SignCommandParser(BotCommandParser):
 
     @classmethod
     def __get_team_tag(cls, message: str) -> str:
-        return re.search(r'\[.+\]', message).group()
+        try:
+            return re.search(r'\[.+\]', message).group()
+        except AttributeError:
+            raise NoTeamTagException()
+
+    @classmethod
+    def __get_rows(cls, raw_message: str) -> List[str]:
+        rows = raw_message.split('\n')
+        good_rows = []
+        for row in rows:
+            if len(row) > 1:
+                good_rows.append(row)
+        return good_rows
