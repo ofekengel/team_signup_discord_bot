@@ -77,3 +77,7 @@ class StorageFramework:
     def get_team_data_by_player(self, player: Player) -> Team:
         team_row = self.__team_storage_api.get_team(self.get_player_data(player.name).team_name)
         return Team(team_row[0], team_row[1], team_row[3])
+
+    def revert_changes(self) -> None:
+        self.__team_storage_api.revert_changes()
+        self.__player_storage_api.revert_changes()

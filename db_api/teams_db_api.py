@@ -30,3 +30,6 @@ class TeamsDBAPI:
         self.__api.execute_query(
             "update '{}' set team_name = '{}', league = '{}' where name = '{}'".format(self.__table_name, new_team_name,
                                                                                        league, current_team_name))
+
+    def revert_changes(self):
+        self.__api.revert_changes()

@@ -1,5 +1,4 @@
-import asyncio
-import time
+import uuid
 
 import discord
 from discord import Guild, Embed
@@ -27,29 +26,36 @@ class StoreTeamCommandHandler(Handler):
                 await self.__add_role_to_player(player)
             return self.__create_result(logo)
         except PlayerAlreadyExistException as e:
+            self.storage_framework.revert_changes()
             raise CommandHandlerException('<@{}> already exists'.format(e.args[0]))
         except TeamAlreadyExistException as e:
             raise CommandHandlerException('{} already exists'.format(e.args[0]))
         except PlayerAlreadyExistInAnotherRoleException as e:
+            self.storage_framework.revert_changes()
             raise CommandHandlerException(
                 '<@{}> is already in team {} as {}'.format(e.args[0].name, e.args[0].team_name, e.args[0].role))
         except PictureNotFoundException:
             raise CommandHandlerException('Please resign with a team logo')
+        except Exception as e:
+            self.storage_framework.revert_changes()
+            error_id = uuid.uuid1()
+            print('{}: {}'.format(error_id, e))
+            raise CommandHandlerException(
+                'oops something went wrong! please contact the technical team and send then the number  {}'.format(
+                    error_id))
 
     async def __add_role_to_player(self, player: Player) -> None:
         players_to_update = self.ctx.message.mentions
+        # time.sleep(1)
         role = None
-        index = 0
-        while role is None and index < 5:
-            role = await self.__get_role_for_team(player.team_name)
-            index += 1
-        time.sleep(1)
         for player_to_update in players_to_update:
             if str(player_to_update.id) in player.name:
                 await player_to_update.edit(
                     nick='{} {}'.format(self.command.team.team_tag.upper(), player_to_update.name))
                 await player_to_update.add_roles(
                     discord.utils.get(self.ctx.server.roles, name='⁣         ^Team Roles^     ⁣'))
+                while role is None:
+                    role = await self.__get_role_for_team(player.team_name)
                 await player_to_update.add_roles(role)
                 await player_to_update.add_roles(
                     discord.utils.get(self.ctx.server.roles, name=LEAGUES[self.command.team.league.strip()]))

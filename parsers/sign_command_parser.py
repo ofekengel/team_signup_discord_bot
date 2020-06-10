@@ -43,6 +43,18 @@ class NoRoleException(Exception):
     pass
 
 
+class URLNotFoundException(Exception):
+    pass
+
+
+class BadUrlFormatException(Exception):
+    pass
+
+
+class WrongLinkException(Exception):
+    pass
+
+
 class SignCommandParser(BotCommandParser):
     # todo: get Message and use author_response.raw_mentions[0] to get ids and not regex
     @classmethod
@@ -84,9 +96,16 @@ class SignCommandParser(BotCommandParser):
         except NoTeamTagException:
             raise CommandParserException('Please enter team tag right')
         except MentionParseException:
-            raise CommandParserException('Please make sure mentioned players appear in blue, links are in the same row as player and picture is a file and not a link')
+            raise CommandParserException(
+                'Please make sure mentioned players appear in blue, links are in the same row as player and picture is a file and not a link')
         except NoRoleException:
             raise CommandParserException('Please make sure you enter roles as shown in the example')
+        except WrongLinkException:
+            raise CommandParserException('Please make sure you use an r6stats link')
+        except BadUrlFormatException:
+            raise CommandParserException('Please make sure you are using an https://r6stats.com/stats/ link')
+        except URLNotFoundException:
+            raise CommandParserException('Please enter a link to you r6stats profile')
 
     @staticmethod
     def __get_mention(message: str) -> str:
@@ -103,11 +122,16 @@ class SignCommandParser(BotCommandParser):
         except AttributeError:
             raise NoRoleException()
 
-
-
     @staticmethod
     def __get_profile_link(message: str) -> str:
-        return re.search(r'[^ ]+$', message).group()
+        url = re.search(r'[^ ]+$', message.strip()).group()
+        if url is not None:
+            if 'https' in url:
+                # if 'r6stats' not in url:
+                return url
+                # raise WrongLinkException()
+            raise BadUrlFormatException()
+        raise URLNotFoundException()
 
     @staticmethod
     def __get_id(message: str) -> str:

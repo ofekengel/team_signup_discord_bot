@@ -18,5 +18,8 @@ class DBCommunicator:
     def get_result(self) -> List:
         return self.cur.fetchall()
 
+    def revert_changes(self):
+        self.__conn.rollback()
+
     def exit(self):
         self.__conn.close()

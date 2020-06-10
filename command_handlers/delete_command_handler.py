@@ -17,6 +17,7 @@ class DeleteCommandHandler(Handler):
                     self.storage_framework.delete_player(self.command.player_to_delete.name)
                 else:
                     raise CommandHandlerException('Cannot delete players in different teams')
+                self.storage_framework.revert_changes()
                 return self.command.get_representation()
             else:
                 raise CommandHandlerException('Only captains are allowed to use this command')

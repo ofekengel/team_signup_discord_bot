@@ -38,3 +38,6 @@ class TeamMembersDBAPI:
 
     def delete_player(self, player_name: str) -> None:
         self.__api.execute_query("DELETE FROM {} WHERE name = '{}'".format(self.__table_name, str(player_name).replace("'", "''")))
+
+    def revert_changes(self):
+        self.__api.revert_changes()
