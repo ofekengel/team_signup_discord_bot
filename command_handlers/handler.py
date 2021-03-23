@@ -12,10 +12,10 @@ class PlayerNotAuthorisedForThisCommandException(Exception):
 
 
 class Handler:
-    def __init__(self, command: ICommand, ctx: Ctx):
+
+    def __init__(self, ctx: Ctx):
         self.ctx = ctx
-        self.command = command
         self.storage_framework = StorageFramework(ctx.path)
 
-    async def handle(self) -> str:
+    async def handle(self, command: ICommand) -> str:
         raise NotImplementedError()

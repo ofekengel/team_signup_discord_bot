@@ -2,7 +2,9 @@ import asyncio
 
 from discord import Message, Member
 
+from command_handlers.ctx import Ctx
 from command_handlers.handler import Handler, CommandHandlerException
+from commands.update_player import UpdatePlayer
 from db_api.storage_framework import PlayerNotRecognizedException
 from model.role_enum import RoleEnum
 
@@ -20,11 +22,13 @@ class CouldNotAssignANewCaptain(Exception):
 
 
 class UpdatePlayerCommandHandler(Handler):
+    def __init__(self, ctx: Ctx):
+        super().__init__(ctx)
 
-    async def handle(self) -> str:
+    async def handle(self, command: UpdatePlayer) -> str:
         try:
             command_author_name = self.ctx.message.author.id
-            player_to_update_name = self.command.player.name
+            player_to_update_name = command.player.name
             new_captain_representation = ''
 
             if self.storage_framework.is_player_in_role(command_author_name, RoleEnum.CAPTAIN):
@@ -32,8 +36,8 @@ class UpdatePlayerCommandHandler(Handler):
                     if self.storage_framework.is_player_in_role(player_to_update_name, RoleEnum.CAPTAIN):
                         new_captain = await self.__assign_new_captain(self.ctx.message.author)
                         new_captain_representation = ' and <@{}> to be the new captain'.format(new_captain)
-                    self.storage_framework.update_role_for_player(player_to_update_name, self.command.role)
-                    return self.command.get_representation() + new_captain_representation
+                    self.storage_framework.update_role_for_player(player_to_update_name, command.role)
+                    return command.get_representation() + new_captain_representation
                 else:
                     raise CommandHandlerException('Cannot update players in different teams')
             else:
@@ -49,11 +53,11 @@ class UpdatePlayerCommandHandler(Handler):
         return False
 
     async def __get_player_response(self, message_author: Member) -> str:
-        self.ctx.bot.awaiting_response.append(message_author)
+        self.ctx.bot.awaiting_responses.append(message_author)
         try:
             author_response = await self.ctx.bot.wait_for('message', check=self.validate_wanted_message, timeout=30)
         except asyncio.TimeoutError:
-            self.ctx.bot.awaiting_response.remove(self.ctx.message.author)
+            self.ctx.bot.awaiting_responses.remove(self.ctx.message.author)
             raise DidNotEnterNewCaptainInTime()
         if len(author_response.raw_mentions) == 1:
             return author_response.raw_mentions[0]
